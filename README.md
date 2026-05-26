@@ -69,4 +69,4 @@ If your meter uses the opposite sign, create a template sensor that flips the si
 
 ## License
 
-No license selected yet.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
