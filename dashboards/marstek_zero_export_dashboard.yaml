@@ -20,17 +20,17 @@ views:
         title: Marstek
         state_color: true
         entities:
-          - sensor.marstek_venus_modbus_soc_batterie
-          - sensor.marstek_venus_modbus_ac_leistung
-          - number.marstek_venus_modbus_entladeleistung_einstellen
-          - select.marstek_venus_modbus_benutzer_modus
-          - select.marstek_venus_modbus_erzwungener_modus
-          - switch.marstek_venus_modbus_rs485_steuermodus
+          - sensor.your_marstek_soc
+          - sensor.your_marstek_ac_power
+          - number.your_marstek_discharge_power
+          - select.your_marstek_user_mode
+          - select.your_marstek_forced_mode
+          - switch.your_marstek_rs485_control
 
       - type: history-graph
         title: Grid and Marstek power
         hours_to_show: 2
         entities:
-          - sensor.total_power
-          - sensor.marstek_venus_modbus_ac_leistung
+          - sensor.your_grid_power
+          - sensor.your_marstek_ac_power
 
