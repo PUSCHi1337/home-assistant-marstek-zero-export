@@ -46,7 +46,7 @@ Stop the test if RS485 control turns off, the Marstek user mode is no longer `an
 
 ## 🛠️ Development Notes
 
-This project was built with AI assistance and validated against a real Home Assistant / Marstek Venus setup.
+For transparency, this project was built with AI assistance and validated against a real Home Assistant / Marstek Venus setup.
 
 As with any automation that writes inverter setpoints, review the YAML, start with conservative limits, and test carefully in your own installation.
 
