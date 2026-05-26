@@ -44,6 +44,12 @@ Stop the test if RS485 control turns off, the Marstek user mode is no longer `an
 - Can allow limited morning PV direct use below the normal start SoC.
 - Leaves dynamic tariff and grid charging logic out of scope.
 
+## 🛠️ Development Notes
+
+This project was built with AI assistance and validated against a real Home Assistant / Marstek Venus setup.
+
+As with any automation that writes inverter setpoints, review the YAML, start with conservative limits, and test carefully in your own installation.
+
 ## 🎯 Project Scope
 
 This repository is only for zero export / self-consumption discharge control.
