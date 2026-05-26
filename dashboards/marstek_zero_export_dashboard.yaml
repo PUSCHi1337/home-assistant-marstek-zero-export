@@ -1,0 +1,36 @@
+title: Marstek Zero Export
+views:
+  - title: Zero Export
+    path: marstek-zero-export
+    icon: mdi:transmission-tower-import
+    cards:
+      - type: entities
+        title: Controller
+        state_color: true
+        entities:
+          - input_boolean.marstek_zero_export_enabled
+          - input_boolean.marstek_zero_export_soc_released
+          - input_number.marstek_zero_export_target_grid_import
+          - input_number.marstek_zero_export_min_soc
+          - input_number.marstek_zero_export_start_soc
+          - input_number.marstek_zero_export_min_discharge_power
+          - input_number.marstek_zero_export_max_discharge_power
+
+      - type: entities
+        title: Marstek
+        state_color: true
+        entities:
+          - sensor.marstek_venus_modbus_soc_batterie
+          - sensor.marstek_venus_modbus_ac_leistung
+          - number.marstek_venus_modbus_entladeleistung_einstellen
+          - select.marstek_venus_modbus_benutzer_modus
+          - select.marstek_venus_modbus_erzwungener_modus
+          - switch.marstek_venus_modbus_rs485_steuermodus
+
+      - type: history-graph
+        title: Grid and Marstek power
+        hours_to_show: 2
+        entities:
+          - sensor.total_power
+          - sensor.marstek_venus_modbus_ac_leistung
+
