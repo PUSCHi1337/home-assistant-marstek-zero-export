@@ -6,19 +6,19 @@ The blueprint is entity-name agnostic. The names below are examples from one ins
 
 | Blueprint input | Example entity |
 |---|---|
-| Marstek AC power sensor | `sensor.marstek_venus_modbus_ac_leistung` |
-| Marstek SoC sensor | `sensor.marstek_venus_modbus_soc_batterie` |
-| Marstek forced mode select | `select.marstek_venus_modbus_erzwungener_modus` |
-| Marstek user mode select | `select.marstek_venus_modbus_benutzer_modus` |
-| Marstek RS485 control mode switch | `switch.marstek_venus_modbus_rs485_steuermodus` |
-| Marstek discharge power number | `number.marstek_venus_modbus_entladeleistung_einstellen` |
+| Marstek AC power sensor | `sensor.your_marstek_ac_power` |
+| Marstek SoC sensor | `sensor.your_marstek_soc` |
+| Marstek forced mode select | `select.your_marstek_forced_mode` |
+| Marstek user mode select | `select.your_marstek_user_mode` |
+| Marstek RS485 control mode switch | `switch.your_marstek_rs485_control` |
+| Marstek discharge power number | `number.your_marstek_discharge_power` |
 
 ## Required Home Sensors
 
 | Blueprint input | Example entity | Notes |
 |---|---|---|
-| Grid power sensor | `sensor.total_power` | Positive import, negative export |
-| PV power sensor | `sensor.pv_power` | Used for optional morning PV direct-use limiting |
+| Grid power sensor | `sensor.your_grid_power` | Positive import, negative export |
+| PV power sensor | `sensor.your_pv_power` | Used for optional morning PV direct-use limiting |
 
 ## Required Helpers
 
