@@ -4,7 +4,28 @@ Zero-export control for Marstek Venus batteries in Home Assistant.
 
 This project provides a Home Assistant automation blueprint and optional helper package to regulate Marstek AC discharge power so the home keeps a small configurable grid import instead of exporting power.
 
-The controller was built around the `marstek_venus_modbus` integration and a grid power sensor where positive values mean grid import and negative values mean export.
+The controller was built around the [`marstek_venus_modbus`](https://github.com/ViperRNMC/marstek_venus_modbus) integration and a grid power sensor where positive values mean grid import and negative values mean export.
+
+## Status
+
+- Blueprint import tested with Home Assistant `2026.5.4`.
+- Disabled blueprint automation instantiation passed Home Assistant config check.
+- The control strategy is field-tested on one real Marstek Venus setup.
+- The reusable blueprint itself should still be treated as an early `v0.1.x` release.
+
+## Safety Warning
+
+This blueprint writes power setpoints to a battery inverter. Start with conservative values and watch the system after enabling it.
+
+Recommended first live test:
+
+- Maximum discharge power: `200-300 W`
+- Target grid import: `30-50 W`
+- Startup cooldown: `90 s`
+- Startup ramp duration: `240 s`
+- Maximum startup ramp step: `50-100 W`
+
+Stop the test if RS485 control turns off, the Marstek user mode is no longer `anti_feed`, entities become unavailable, or the system exports unexpectedly for more than a short transient.
 
 ## Features
 
@@ -45,7 +66,7 @@ docs/troubleshooting.md
 
 ## Quick Start
 
-1. Install the `marstek_venus_modbus` integration.
+1. Install the [`marstek_venus_modbus`](https://github.com/ViperRNMC/marstek_venus_modbus) integration.
 2. Create or import the helper entities from `packages/marstek_zero_export_helpers.yaml`.
 3. Import the blueprint from `blueprints/automation/marstek_zero_export.yaml`.
 4. Create an automation from the blueprint and map your entities.
