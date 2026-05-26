@@ -1,0 +1,67 @@
+# Optional helper package for the Marstek Zero Export Controller blueprint.
+#
+# Copy this file into your Home Assistant packages directory and include packages
+# from configuration.yaml, or create equivalent helpers in the UI.
+
+input_boolean:
+  marstek_zero_export_enabled:
+    name: Marstek Zero Export enabled
+    icon: mdi:transmission-tower-import
+    initial: false
+
+  marstek_zero_export_soc_released:
+    name: Marstek Zero Export SoC released
+    icon: mdi:battery-check
+    initial: false
+
+input_number:
+  marstek_zero_export_target_grid_import:
+    name: Marstek Zero Export target grid import
+    icon: mdi:transmission-tower-import
+    min: 0
+    max: 200
+    step: 10
+    unit_of_measurement: W
+    mode: slider
+    initial: 30
+
+  marstek_zero_export_min_soc:
+    name: Marstek Zero Export minimum SoC
+    icon: mdi:battery-20
+    min: 5
+    max: 80
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    initial: 15
+
+  marstek_zero_export_start_soc:
+    name: Marstek Zero Export start SoC
+    icon: mdi:battery-plus
+    min: 5
+    max: 80
+    step: 5
+    unit_of_measurement: "%"
+    mode: slider
+    initial: 20
+
+  marstek_zero_export_min_discharge_power:
+    name: Marstek Zero Export minimum discharge power
+    icon: mdi:battery-low
+    min: 0
+    max: 200
+    step: 50
+    unit_of_measurement: W
+    mode: slider
+    initial: 50
+
+  marstek_zero_export_max_discharge_power:
+    name: Marstek Zero Export maximum discharge power
+    icon: mdi:battery-arrow-down-outline
+    min: 0
+    max: 1500
+    step: 50
+    unit_of_measurement: W
+    mode: slider
+    initial: 800
+
