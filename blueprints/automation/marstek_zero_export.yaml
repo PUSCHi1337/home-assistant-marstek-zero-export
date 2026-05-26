@@ -1,0 +1,348 @@
+blueprint:
+  name: Marstek Zero Export Controller
+  description: >
+    Regulate Marstek Venus AC discharge power to keep a small grid import and
+    avoid grid export. Dynamic tariff charging is intentionally out of scope.
+  domain: automation
+  input:
+    enable_boolean:
+      name: Enable helper
+      description: Input boolean that enables zero-export control.
+      selector:
+        entity:
+          domain: input_boolean
+
+    soc_release_boolean:
+      name: SoC release helper
+      description: Input boolean used as hysteresis memory between minimum SoC and start SoC.
+      selector:
+        entity:
+          domain: input_boolean
+
+    grid_power_sensor:
+      name: Grid power sensor
+      description: Positive values must mean grid import, negative values grid export.
+      selector:
+        entity:
+          domain: sensor
+
+    pv_power_sensor:
+      name: PV power sensor
+      description: Used only for optional morning PV direct-use limiting.
+      selector:
+        entity:
+          domain: sensor
+
+    marstek_ac_power_sensor:
+      name: Marstek AC power sensor
+      description: Marstek AC power. Positive values are treated as AC discharge, negative values as AC charging.
+      selector:
+        entity:
+          domain: sensor
+
+    marstek_soc_sensor:
+      name: Marstek SoC sensor
+      selector:
+        entity:
+          domain: sensor
+
+    marstek_force_mode_select:
+      name: Marstek forced mode select
+      description: Select entity with options such as standby, charge, discharge.
+      selector:
+        entity:
+          domain: select
+
+    marstek_user_mode_select:
+      name: Marstek user mode select
+      description: Should normally stay on anti_feed for reliable RS485 control.
+      selector:
+        entity:
+          domain: select
+
+    marstek_rs485_control_switch:
+      name: Marstek RS485 control mode switch
+      description: Zero-export control only runs while this switch is on.
+      selector:
+        entity:
+          domain: switch
+
+    marstek_discharge_power_number:
+      name: Marstek discharge power number
+      description: Number entity used to set forced discharge power.
+      selector:
+        entity:
+          domain: number
+
+    target_grid_import_number:
+      name: Target grid import helper
+      selector:
+        entity:
+          domain: input_number
+
+    max_discharge_power_number:
+      name: Maximum discharge power helper
+      selector:
+        entity:
+          domain: input_number
+
+    min_discharge_power_number:
+      name: Minimum discharge power helper
+      selector:
+        entity:
+          domain: input_number
+
+    min_soc_number:
+      name: Minimum SoC helper
+      selector:
+        entity:
+          domain: input_number
+
+    start_soc_number:
+      name: Start SoC helper
+      selector:
+        entity:
+          domain: input_number
+
+    required_user_mode:
+      name: Required Marstek user mode
+      default: anti_feed
+      selector:
+        text:
+
+    enable_morning_pv_direct_use:
+      name: Allow morning PV direct use below start SoC
+      default: true
+      selector:
+        boolean:
+
+    start_cooldown_seconds:
+      name: Start cooldown after enable
+      default: 90
+      selector:
+        number:
+          min: 0
+          max: 600
+          step: 5
+          unit_of_measurement: s
+          mode: slider
+
+    start_ramp_seconds:
+      name: Startup ramp duration
+      default: 240
+      selector:
+        number:
+          min: 0
+          max: 1200
+          step: 10
+          unit_of_measurement: s
+          mode: slider
+
+    max_ramp_step_w:
+      name: Maximum startup ramp step
+      default: 100
+      selector:
+        number:
+          min: 50
+          max: 500
+          step: 50
+          unit_of_measurement: W
+          mode: slider
+
+    min_seconds_between_ramp_steps:
+      name: Minimum time between ramp steps
+      default: 12
+      selector:
+        number:
+          min: 0
+          max: 120
+          step: 1
+          unit_of_measurement: s
+          mode: slider
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: time_pattern
+    seconds: /15
+
+  - platform: numeric_state
+    entity_id: !input grid_power_sensor
+    above: 250
+    for:
+      seconds: 2
+
+  - platform: numeric_state
+    entity_id: !input grid_power_sensor
+    below: -150
+    for:
+      seconds: 2
+
+  - platform: state
+    entity_id:
+      - !input enable_boolean
+      - !input soc_release_boolean
+      - !input marstek_soc_sensor
+
+variables:
+  enable_entity: !input enable_boolean
+  soc_release_entity: !input soc_release_boolean
+  grid_power_entity: !input grid_power_sensor
+  pv_power_entity: !input pv_power_sensor
+  ac_power_entity: !input marstek_ac_power_sensor
+  soc_entity: !input marstek_soc_sensor
+  force_mode_entity: !input marstek_force_mode_select
+  user_mode_entity: !input marstek_user_mode_select
+  rs485_control_entity: !input marstek_rs485_control_switch
+  discharge_power_entity: !input marstek_discharge_power_number
+  target_grid_import_entity: !input target_grid_import_number
+  max_discharge_power_entity: !input max_discharge_power_number
+  min_discharge_power_entity: !input min_discharge_power_number
+  min_soc_entity: !input min_soc_number
+  start_soc_entity: !input start_soc_number
+  required_user_mode_value: !input required_user_mode
+  morning_pv_direct_enabled: !input enable_morning_pv_direct_use
+  start_cooldown: !input start_cooldown_seconds
+  start_ramp_seconds_value: !input start_ramp_seconds
+  max_ramp_step: !input max_ramp_step_w
+  ramp_step_min_age: !input min_seconds_between_ramp_steps
+
+action:
+  - variables:
+      grid_power: "{{ states(grid_power_entity) | float(0) }}"
+      current_ac_output: "{{ [states(ac_power_entity) | float(0), 0] | max }}"
+      pv_power: "{{ states(pv_power_entity) | float(0) }}"
+      soc: "{{ states(soc_entity) | float(0) }}"
+      current_mode: "{{ states(force_mode_entity) }}"
+      user_mode: "{{ states(user_mode_entity) }}"
+      current_discharge_power: "{{ states(discharge_power_entity) | float(0) }}"
+      target_grid_import: "{{ states(target_grid_import_entity) | float(30) }}"
+      configured_max_discharge_power: "{{ states(max_discharge_power_entity) | float(1200) }}"
+      entity_max_discharge_power: "{{ state_attr(discharge_power_entity, 'max') | float(configured_max_discharge_power | float(1200)) }}"
+      effective_max_discharge_power: "{{ [configured_max_discharge_power | float(1200), entity_max_discharge_power | float(1200)] | min }}"
+      min_discharge_power: "{{ states(min_discharge_power_entity) | float(50) }}"
+      min_soc: "{{ states(min_soc_entity) | float(15) }}"
+      start_soc: "{{ states(start_soc_entity) | float(20) }}"
+      enabled_age_seconds: >
+        {% set enabled = states.get(enable_entity) %}
+        {{ (as_timestamp(now()) - as_timestamp(enabled.last_changed)) | int(0) if enabled is not none else 0 }}
+      setpoint_age_seconds: >
+        {% set setpoint = states.get(discharge_power_entity) %}
+        {{ (as_timestamp(now()) - as_timestamp(setpoint.last_changed)) | int(0) if setpoint is not none else 0 }}
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ (soc | float(0)) <= (min_soc | float(15)) and is_state(soc_release_entity, 'on') }}"
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input soc_release_boolean
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (soc | float(0)) >= (start_soc | float(20)) and is_state(soc_release_entity, 'off') }}"
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input soc_release_boolean
+
+  - variables:
+      morning_pv_direct_allowed: >
+        {{
+          morning_pv_direct_enabled and
+          now().hour >= 5 and now().hour < 11 and
+          (soc | float(0)) > (min_soc | float(15)) and
+          (soc | float(0)) < (start_soc | float(20)) and
+          (pv_power | float(0)) >= (min_discharge_power | float(50))
+        }}
+      calculated_discharge_power: >
+        {% set raw = current_ac_output | float(0) + grid_power | float(0) - target_grid_import | float(30) %}
+        {% set limited = [[raw, 0] | max, effective_max_discharge_power | float(1200)] | min %}
+        {% set rounded = ((limited / 50) | round(0) * 50) | int %}
+        {% set pv_limited = (((pv_power | float(0)) / 50) | round(0, 'floor') * 50) | int %}
+        {% set morning = now().hour >= 5 and now().hour < 11 %}
+        {% if morning and (soc | float(0)) > (min_soc | float(15)) and (soc | float(0)) < (start_soc | float(20)) %}
+          {{ [rounded, pv_limited] | min }}
+        {% else %}
+          {{ rounded }}
+        {% endif %}
+
+  - variables:
+      ramp_limited_discharge_power: >
+        {% set target = calculated_discharge_power | float(0) %}
+        {% set current = current_discharge_power | float(0) %}
+        {% set startup_ramp = (enabled_age_seconds | int(0)) < (start_ramp_seconds_value | int(240)) %}
+        {% if target > current and startup_ramp and (setpoint_age_seconds | int(0)) < (ramp_step_min_age | int(12)) %}
+          {{ current | round(0) | int }}
+        {% elif target > current and startup_ramp %}
+          {{ [target, current + (max_ramp_step | float(100))] | min | round(0) | int }}
+        {% else %}
+          {{ target | round(0) | int }}
+        {% endif %}
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >
+              {{
+                not is_state(enable_entity, 'on') or
+                states(grid_power_entity) in ['unknown', 'unavailable', 'none', 'None', ''] or
+                states(ac_power_entity) in ['unknown', 'unavailable', 'none', 'None', ''] or
+                states(soc_entity) in ['unknown', 'unavailable', 'none', 'None', ''] or
+                not is_state(rs485_control_entity, 'on') or
+                states(user_mode_entity) != required_user_mode_value or
+                (soc | float(0)) <= (min_soc | float(15)) or
+                (
+                  not is_state(soc_release_entity, 'on') and
+                  not (morning_pv_direct_allowed | bool(false))
+                ) or
+                (enabled_age_seconds | int(0)) < (start_cooldown | int(90)) or
+                (calculated_discharge_power | float(0)) < (min_discharge_power | float(50))
+              }}
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ current_mode not in ['standby', 'unknown', 'unavailable', 'none', 'None', ''] }}"
+                sequence:
+                  - service: select.select_option
+                    target:
+                      entity_id: !input marstek_force_mode_select
+                    data:
+                      option: standby
+
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ (current_discharge_power | float(0)) > 0 }}"
+                sequence:
+                  - service: number.set_value
+                    target:
+                      entity_id: !input marstek_discharge_power_number
+                    data:
+                      value: 0
+
+    default:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ (current_discharge_power | float(0)) != (ramp_limited_discharge_power | float(0)) }}"
+            sequence:
+              - service: number.set_value
+                target:
+                  entity_id: !input marstek_discharge_power_number
+                data:
+                  value: "{{ ramp_limited_discharge_power }}"
+
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ current_mode != 'discharge' }}"
+            sequence:
+              - service: select.select_option
+                target:
+                  entity_id: !input marstek_force_mode_select
+                data:
+                  option: discharge
