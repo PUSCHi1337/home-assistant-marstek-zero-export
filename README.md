@@ -11,14 +11,14 @@ This project provides a Home Assistant automation blueprint and optional helper 
 
 The controller was built around the [`marstek_venus_modbus`](https://github.com/ViperRNMC/marstek_venus_modbus) integration and a grid power sensor where positive values mean grid import and negative values mean export.
 
-## Status
+## ✅ Status
 
 - Blueprint import tested with Home Assistant `2026.5.4`.
 - Disabled blueprint automation instantiation passed Home Assistant config check.
 - The control strategy is field-tested on one real Marstek Venus setup.
 - The reusable blueprint itself should still be treated as an early `v0.1.x` release.
 
-## Safety Warning
+## ⚠️ Safety Warning
 
 This blueprint writes power setpoints to a battery inverter. Start with conservative values and watch the system after enabling it.
 
@@ -32,7 +32,7 @@ Recommended first live test:
 
 Stop the test if RS485 control turns off, the Marstek user mode is no longer `anti_feed`, entities become unavailable, or the system exports unexpectedly for more than a short transient.
 
-## Features
+## ✨ Features
 
 - Regulates Marstek discharge power from live grid power.
 - Keeps a configurable target grid import.
@@ -44,20 +44,20 @@ Stop the test if RS485 control turns off, the Marstek user mode is no longer `an
 - Can allow limited morning PV direct use below the normal start SoC.
 - Leaves dynamic tariff and grid charging logic out of scope.
 
-## Project Scope
+## 🎯 Project Scope
 
 This repository is only for zero export / self-consumption discharge control.
 
 Dynamic charging from cheap tariffs is intentionally separate. A later project can pause this controller, charge the battery, and then hand control back.
 
-## Important Marstek Notes
+## 🔋 Important Marstek Notes
 
 - For Modbus control, the Marstek user mode should stay on `anti_feed`.
 - Discharging is controlled through the forced mode `discharge` and the discharge power number.
 - Charging is not handled by this project.
 - If Home Assistant is restarted while zero export is active, pause the controller first where possible.
 
-## Repository Layout
+## 📁 Repository Layout
 
 ```text
 blueprints/automation/marstek_zero_export.yaml
@@ -69,7 +69,7 @@ docs/safety.md
 docs/troubleshooting.md
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 1. Install the [`marstek_venus_modbus`](https://github.com/ViperRNMC/marstek_venus_modbus) integration.
 2. Create or import the helper entities from `packages/marstek_zero_export_helpers.yaml`.
@@ -82,7 +82,7 @@ docs/troubleshooting.md
    - Minimum discharge power: `50 W`
    - Maximum discharge power: `800-1500 W`, depending on your hardware and legal setup
 
-## Required Semantics
+## 🔌 Required Semantics
 
 Your grid power sensor must behave like this:
 
@@ -93,6 +93,6 @@ negative = exporting to grid
 
 If your meter uses the opposite sign, create a template sensor that flips the sign before using this blueprint.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
