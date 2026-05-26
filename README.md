@@ -1,5 +1,10 @@
 # Home Assistant Marstek Zero Export
 
+[![release](https://img.shields.io/github/v/release/PUSCHi1337/home-assistant-marstek-zero-export?style=flat-square&label=release)](https://github.com/PUSCHi1337/home-assistant-marstek-zero-export/releases)
+[![issues](https://img.shields.io/github/issues/PUSCHi1337/home-assistant-marstek-zero-export?style=flat-square&label=issues)](https://github.com/PUSCHi1337/home-assistant-marstek-zero-export/issues)
+[![downloads](https://img.shields.io/github/downloads/PUSCHi1337/home-assistant-marstek-zero-export/total?style=flat-square&label=downloads)](https://github.com/PUSCHi1337/home-assistant-marstek-zero-export/releases)
+[![license](https://img.shields.io/github/license/PUSCHi1337/home-assistant-marstek-zero-export?style=flat-square&label=license)](LICENSE)
+
 Zero-export control for Marstek Venus batteries in Home Assistant.
 
 This project provides a Home Assistant automation blueprint and optional helper package to regulate Marstek AC discharge power so the home keeps a small configurable grid import instead of exporting power.
